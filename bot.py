@@ -12,63 +12,6 @@ API_TOKEN = '<seu token>'
 bot = telebot.TeleBot(API_TOKEN)
 
 
-
-
-# markup = quick_markup(
-#     {'text': 'Press me', 'callback_data': 'press'},
-#     {'text': 'Press me too', 'callback_data': 'press_too'}
-# )
-
-    
-
-# @bot.message_handler(commands=['start'])
-# def receiving_start(message):
-#     chat_id = message.chat.id
-#     markup = ReplyKeyboardMarkup(resize_keyboard=True)
-#     markup.add('/telebot', 'chats', 'some_features')
-#     msg = bot.reply_to(message, """
-# Welcome to pyTelegramBotAPI’s documentation!
-# Bot created by Elivandro Santos, 
-# this project is part of the learning path of reading 
-# pyTelegramBotAPI’s 4.9.0 documentation.
-
-# Intent is only for learning and helping other beginners
-# to read this simple and easy learning documentation, not for sale.
-
-# GitHub: https://github.com/elivandrosantos
-
-# E-mail: elivandrocsantos@gmail.com
-
-# Send DM Telegram: @ordnavile""", disable_web_page_preview=True)
-    
-#     # bot.send_message(message, '⚠️ MAIN MENU ⚠️', reply_markup=markup)
-#     bot.reply_to(message, '⚠️ MAIN MENU ⚠️\n'
-#                               '\n'
-#                               '/telebot - Description \n'
-#                               '/chats - Chat List \n'
-#                               '/some_features - Some features \n'
-#                               '/content - Content \n'
-#                               '/quick_start - Quick Start \n'
-#                               '/types_of_api - Types of API \n'
-#                               '/telebot_version - TeleBot Version\n'
-#                               '/asynctelebot - AsyncTeleBot\n'
-#                               '/callback_data_factory - Callback Data Factory\n'
-#                               '/utils - Utils\n'
-#                               '/formatting_options - Formatting Options\n'
-#                               '/help - Help\n', reply_markup=markup
-                              
-                              
-
-#                 )
-    
-
-    # chat_id_list = []
-    # chat_id_list.append(chat_id)
-    # for chat in chat_id_list:
-    #     msg = antiflood(bot.send_message, chat, {'text': '⚠️Cuidado com o flood!⚠️'}, 2, 3)
-
-
-
 @bot.message_handler(commands=['start'])
 def receiving_start(message):
     chat_id = message.chat.id
