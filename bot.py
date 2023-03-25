@@ -7,7 +7,7 @@ import time
 # from telebot.service_utils import quick_markup
 
 
-API_TOKEN = '6068095657:AAF__0X10X8uWvg-1_ksA9kTYD64X14giCc'
+API_TOKEN = '<seu token>'
 
 bot = telebot.TeleBot(API_TOKEN)
 
