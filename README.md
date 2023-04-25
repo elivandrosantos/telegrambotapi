@@ -8,7 +8,7 @@ Nesse caso fui dar uma lida na documentação do pyTelegramBotAPI e acabei crian
 
 Quem quiser entrar em contato vou deixar meu telegram aqui para um bate papo, esse projeto faz parte da minha trilha de aprendizado, onde há um ano estou estudando linguagem python no auto-didatismo, pesquisa, consultas e participando das comunidades.
 
-Fiz o deploy no pythonanywhere, o procure por @vadox_bot no telegram para testar.
+Fiz o deploy no pythonanywhere, o procure por @vadoxbot no telegram para testar.
 
 Tamo junto.
 
