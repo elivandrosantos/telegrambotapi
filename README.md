@@ -8,7 +8,7 @@ Nesse caso fui dar uma lida na documentação do pyTelegramBotAPI e acabei crian
 
 Quem quiser entrar em contato vou deixar meu telegram aqui para um bate papo, esse projeto faz parte da minha trilha de aprendizado, onde há um ano estou estudando linguagem python no auto-didatismo, pesquisa, consultas e participando das comunidades.
 
-Fiz o deploy no pythonanywhere, o procure por @vadoxbot no telegram para testar.
+Fiz o deploy do script em uma máquina virtual AWS, procure por @vadoxbot no telegram para testar.
 
 Tamo junto.
 
@@ -24,7 +24,7 @@ In this case, I went to read the pyTelegramBotAPI documentation and ended up cre
 
 Anyone who wants to get in touch, I'll leave my telegram here for a chat, this project is part of my learning trail, where I've been studying python language for a year in self-teaching, research, consultations and participating in communities.
 
-I deployed it on pythonanywhere, search for @vadox_bot on telegram to test it.
+I deployed the script on an AWS virtual machine, search for @vadoxbot on telegram to test it.
 
 We're together.
 
