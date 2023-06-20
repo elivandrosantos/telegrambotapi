@@ -1,312 +1,609 @@
 # -- coding: utf-8 --
 
-import telebot
-from telebot.util import antiflood
-import time
-# from telebot.types import ReplyKeyboardMarkup, KeyboardButton
-# from telebot.service_utils import quick_markup
+import telebot, csv
+# import time
+from datetime import datetime
+from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
+# from telebot.types import ReplyKeyboardMarkup, CallbackQuery, KeyboardButton
+
+BOT_TOKEN = 'INSIRA O TOKEN DO SEU BOT AQUI'
+
+bot = telebot.TeleBot(BOT_TOKEN, parse_mode='HTML')
 
 
-API_TOKEN = '<seu token>'
-
-bot = telebot.TeleBot(API_TOKEN)
+#SALVAR dados da conversa com o chatbot em arquivos csv
+def salvar (arquivo, conversa: list):
+    with open(arquivo,'a') as chat:
+        e = csv.writer(chat)
+        e.writerow(conversa)
 
 
 @bot.message_handler(commands=['start'])
-def receiving_start(message):
+def send_start(message):
     chat_id = message.chat.id
-    bot.reply_to(message, """
-Welcome to pyTelegramBotAPI’s documentation!
-Bot created by Elivandro Santos, 
-this project is part of the learning path of reading 
-pyTelegramBotAPI’s 4.9.0 documentation.
+    bot.send_chat_action(chat_id=message.from_user.id, action='typing')
+    markup = InlineKeyboardMarkup()
+    markup.add(InlineKeyboardButton('💻 Categorias', callback_data='categorias'),
+               InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+    markup.add(InlineKeyboardButton('⚠️ Escola Segura', url='https://www.gov.br/mj/pt-br/escolasegura'))
+    markup.add(InlineKeyboardButton('😎 Admin', url='https://t.me/ordnavile'))
+    markup.add(InlineKeyboardButton('🆘 Help', callback_data='help'))
+            #    InlineKeyboardButton('Some Features', callback_data='some_features'),
+            #    InlineKeyboardButton('Content', callback_data='content'),
+            #    InlineKeyboardButton('Quick Start', callback_data='quick_start'),
+            #    InlineKeyboardButton('Types Of API', callback_data='types_of_api'),
+            #    InlineKeyboardButton('Telebot Version', callback_data='telebot_version'),
+            #    InlineKeyboardButton('AsyncTeleBot', callback_data='asynctelebot'),
+            #    InlineKeyboardButton('Callback Data Factory', callback_data='callback_data'),
+            #    InlineKeyboardButton('Utils', callback_data='utils'),
+            #    InlineKeyboardButton('Formatting Options', callback_data='formatting'),
+            #    InlineKeyboardButton('Help', callback_data='help'))
+    # bot.send_message(chat_id, """ """, disable_web_page_preview=True)
+    bot.send_message(chat_id, text=f'Olá, seja bem vindo!', reply_markup=markup)
+    bot.delete_message(chat_id, message.message_id)
+    # bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id)
+#     bot.send_message(chat_id, """ Quer inserir seu canal ou grupo no catálogo?
+# Envei uma DM para @ordnavile com o link do seu grupo ou canal, é gratuito e sempre será!😉
+#         """)
+    conversa = [
+            datetime.now().strftime('%d/%m/%Y %H:%M:%S'), # data e hora do envio
+            message.chat.id, # ID do chat
+            message.from_user.username, # nome do usuário que enviou o arquivo
+            message.content_type, # tipo do arquivo enviado
+            message.text
+        ]
+    salvar('clicou_botao_iniciar.csv', conversa)
 
-Intent is only for learning and helping other beginners
-to read this simple and easy learning documentation, not for sale.
 
-GitHub: https://github.com/elivandrosantos
 
-E-mail: elivandrocsantos@gmail.com
-
-Send DM Telegram: @ordnavile""", disable_web_page_preview=True)
-
-    menu_options = [
-        '/telebot - Description',
-        '/chats - Chat List',
-        '/some_features - Some features',
-        '/content - Content',
-        '/quick_start - Quick Start',
-        '/types_of_api - Types of API',
-        '/telebot_version - TeleBot Version',
-        '/asynctelebot - AsyncTeleBot',
-        '/callback_data_factory - Callback Data Factory',
-        '/utils - Utils',
-        '/formatting_options - Formatting Options',
-        '/help - Help'
-    ]
-    menu_text = '⚠️ MAIN MENU ⚠️\n\n' + '\n'.join(menu_options)
-    bot.reply_to(message, menu_text)
-
-    msg = antiflood(bot.send_message, chat_id,  """⚠️Watch out for the flood!⚠️
-Send messages every few seconds to avoid blocking the bot.""", time.sleep(1))
-
-   
-    
-
-        
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
     chat_id = message.chat.id
-    bot.send_message(chat_id, 'Questions about bot functionality, send an email to elivandrocsantos@gmail.com or telegram @ordnavile\n' \
-                     '\n' \
-                     'MAIN MENU: /start')
-    
-    
-    
-    
+    bot.send_chat_action(chat_id=message.from_user.id, action='typing')
+    markup = InlineKeyboardMarkup()
+    markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+    markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='start'))
+    bot.send_message(chat_id, """ Quer inserir seu canal ou grupo no catálogo?
+Envei uma DM para @ordnavile com o link do seu grupo ou canal, é gratuito e sempre será!😉
+        """, reply_markup=markup)
+    # bot.delete_message(chat_id, message.message_id)
+    bot.delete_message(chat_id=message.from_user.id, message_id=message.message.message_id)
+
+
+@bot.message_handler(func=lambda message: True, content_types=['audio', 'photo', 'voice', 'video', 'document',
+                                                               'text', 'location', 'contact', 'sticker', 'animation'])
+def default_command(message):
+    markup = InlineKeyboardMarkup()
+    markup.add(InlineKeyboardButton('▶️ Start', callback_data='start'))
+    markup.add(InlineKeyboardButton('🆘 Help', callback_data='help'))
+#     bot.send_message(message.chat.id, """Não é um comando válido.😕
+# Digite /start ou /help para interagir com o bot.🤖""", reply_markup=markup)
+
+    if message.content_type == message.content_type:
+        bot.send_chat_action(chat_id=message.from_user.id, action='typing')
+        bot.send_message(message.chat.id, """Não é um comando válido.😕
+Digite /start ou /help para interagir com o bot.🤖""", reply_markup=markup)
+        # bot.delete_message(message.chat.id, message.message_id)
+        bot.delete_message(chat_id=message.from_user.id, message_id=message.message.message_id)
+        conversa = [
+            datetime.now().strftime('%d/%m/%Y %H:%M:%S'), # data e hora do envio
+            message.chat.id, # ID do chat
+            message.from_user.username, # nome do usuário que enviou o arquivo
+            message.content_type, # tipo do arquivo enviado
+            message.text
+        ]
+        salvar('arquivos_user.csv', conversa)
 
 
 
-@bot.message_handler(commands=['telebot'])
-def receiving_telebot(message):
-    chat_id = message.chat.id
-    url = 'https://core.telegram.org/bots/api'
-    bot.reply_to(message, f'TeleBot is synchronous and asynchronous implementation of Telegram Bot API\n{url}\n' \
-                          f'\n' \
-                          f'RETURN /start' 
-                )
+@bot.callback_query_handler(func=lambda call: True)
+def callback_handler(call):
+    chat_id = call.message.chat.id
+    message_id = call.message.message_id
+    conversa = [
+        datetime.now().strftime('%d/%m/%Y %H:%M:%S'), # data e hora da mensagem
+        call.message.chat.id, # ID do chat
+        call.from_user.username, # nome do usuário que enviou a mensagem
+        call.message.text # texto da mensagem
+                ]
+    # salvar('categorias.csv', conversa)
 
 
-@bot.message_handler(commands=['chats'])
-def receiving_chats(message):
-    chat_id = message.chat.id
-    chat_telegram = 'https://telegram.me/joinchat/Bn4ixj84FIZVkwhk2jag6A'
-    chat_russo = 'https://t.me/pytelegrambotapi_talks_ru'
-    chat_noticias = 'https://t.me/pytelegrambotapi'
-    baixando_pypi = 'https://pypi.org/project/pyTelegramBotAPI/'
-    repositorio_github = 'https://github.com/eternnoir/pyTelegramBotAPI'
+    if call.data == 'categorias':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton('📢 Canais', callback_data='canais'),
+                   InlineKeyboardButton('🗣 Grupos', callback_data='grupos'),
+                #    InlineKeyboardButton('🕹 Games', url='https://t.me/gamee'),
+                #    InlineKeyboardButton('💻 Tecnologia', callback_data='tecnologia'),
+                #     InlineKeyboardButton('Cursos', callback_data='filmes'),
+                #     InlineKeyboardButton('Idiomas', callback_data='idiomas'),
+                #     InlineKeyboardButton('Notícias', callback_data='noticias'),
+                #     InlineKeyboardButton('RedPill', callback_data='redpill'),
+                #     InlineKeyboardButton('Mundo', callback_data='mundo'),
+                #     InlineKeyboardButton('Tecnologia', callback_data='tecnologia'),
+                #     InlineKeyboardButton('+18', callback_data='18'),
+                    # InlineKeyboardButton('🆘 Help', callback_data='help')
+                    )
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='start')
+        )
+        bot.answer_callback_query(callback_query_id=call.id)
+        # bot.delete_message(chat_id, message_id)
+        bot.send_message(chat_id, """ Selecione Categoria: """, reply_markup=markup)
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
 
-    url_chat = f'English chat: {chat_telegram}\n ' \
-               f'\n' \
-               f'Russian chat: {chat_russo}\n' \
-               f'\n' \
-               f'News: {chat_noticias}\n' \
-               f'\n' \
-               f'Pypi: {baixando_pypi} \n ' \
-               f'\n' \
-               f'Source:: Github repository {repositorio_github}\n' \
-               f'\n' \
-               f'RETURN /start' 
-    bot.reply_to(message, f'{url_chat}', disable_web_page_preview=True)
-
-
-
-
-@bot.message_handler(commands=['some_features'])
-def receiving_some(message):
-    chat_id = message.chat.id
-    msg_help = bot.reply_to(message, 'Easy to learn and use.\n'
-                                     'Easy to understand.\n'
-                                     'Both sync and async.\n'
-                                     'Examples on features.\n'
-                                     'States\n'
-                                     'And more…\n'
-                                     '\n'
-                                     'RETURN /start' 
-                            )
-    
-
-@bot.message_handler(commands=['content'])
-def receiving_content(message):
-    chat_id = message.chat.id
-    bot.send_message(chat_id, 'Enter options in menu\n' \
-                     '\n' \
-                     'Instalation Guide: /installation_guide \n' \
-                                     'Using PIP: /using_pip \n' \
-                                     'Usingi pipenv: /using_pipenv \n'\
-                                     'By Cloning Repositoy: /by_cloning_repository \n' \
-                                     'Directly Using pip: /directly_using_pip \n' \
-                                     '\n' \
-                                     'RETURN /start'
-                                     
-                            )
-    
-
-
-@bot.message_handler(commands=['installation_guide'])
-def receiving_guide(message):
-    chat_id = message.chat.id
-    url_guide = 'https://pytba.readthedocs.io/en/latest/install.html\n' \
-                '\n' \
-                'MAIN MENU: /start\n' \
-                'RETURN: /content'
-    with open('guide.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_guide)
+        salvar('categorias.csv', conversa)
 
 
 
-@bot.message_handler(commands=['using_pip'])
-def receiving_pip(message):
-    chat_id = message.chat.id
-    url_pip = 'https://pytba.readthedocs.io/en/latest/install.html#using-pip\n' \
-              '\n' \
-              'MAIN MENU: /start\n' \
-              'RETURN: /content'
-    with open('using_pip.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_pip)
+    elif call.data == 'valores':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        # salvar('valores.csv', conversa)
+        chave_pix = """
+
+1c60cdac-4a1e-4146-a141-c1329f487615
+
+Esse projeto é 100% gratuito.
+Uma coquinha e um salgado será sempre bem-vindo!😉
+
+"""
+        image_file = open('pix.jpeg', 'rb')
+        markup = InlineKeyboardMarkup()
+        markup.add(InlineKeyboardButton('Retornar', callback_data='start'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        bot.send_photo(chat_id, image_file, caption=chave_pix, reply_markup=markup)
+        salvar('valores.csv', conversa)
+
+
+    elif call.data == 'grupos':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        # markup.row_width = 2
+        # markup.add(InlineKeyboardButton('🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglês 🏴󠁧󠁢󠁥󠁮󠁧󠁿', url='https://t.me/inglespelotelegram'),
+        #            InlineKeyboardButton('🇪🇸 Espanhol 🇪🇸', url='https://t.me/espanholcombeta'),
+        #            InlineKeyboardButton('🇫🇷 Francês 🇫🇷', url='https://t.me/francesmairovergara'),
+        #            InlineKeyboardButton('🇩🇪 Alemão 🇩🇪', url='https://t.me/Cursoalemao'),
+                #    InlineKeyboardButton('◀️ Retornar', callback_data='canais'),
+                #    InlineKeyboardButton('🤑 Doação', callback_data='valores'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                #    )
+
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='categorias'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        # bot.send_message(chat_id, 'Selecione Canal Idioma:', reply_markup=markup)
+        bot.send_message(chat_id,
+"""Mande DM para @ordnavile para inserir seu grupo no catálogo,
+é gratuito e sempre será!😎""", reply_markup=markup)
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('grupos.csv', conversa)
 
 
 
-@bot.message_handler(commands=['using_pipenv'])
-def receiving_pipenv(message):
-    chat_id = message.chat.id
-    url_pipenv = 'https://pytba.readthedocs.io/en/latest/install.html#using-pipenv\n' \
-                 '\n' \
-                 'MAIN MENU: /start\n' \
-                 'RETURN: /content'
-    with open('using_pipenv.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_pipenv)
+    elif call.data == 'canais':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.add(InlineKeyboardButton('🎵 Músicas', callback_data='musicas'),
+                   InlineKeyboardButton('📺 Filmes', callback_data='filmes'),
+                   InlineKeyboardButton('🗞 Notícias', callback_data='noticias'),
+                   InlineKeyboardButton('🌎 Mundo', callback_data='mundo'),
+                   InlineKeyboardButton('🗿 RedPill', callback_data='redpill'),
+                   InlineKeyboardButton('💻 Tecnologia', callback_data='tecnologia'),
+                   InlineKeyboardButton('📚 Cursos', callback_data='cursos'),
+                   InlineKeyboardButton('🔡 Idiomas', callback_data='idiomas'),
+                   InlineKeyboardButton('🕹 Games', url='https://t.me/gamee'),
+                   )
+        # markup.add(InlineKeyboardButton('🕹 Games', url='https://t.me/gamee'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='categorias'))
+        bot.send_message(chat_id, 'Selecione o Canal', reply_markup=markup)
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('canais.csv', conversa)
 
 
-
-@bot.message_handler(commands=['by_cloning_repository'])
-def receiving_cloning_repository(message):
-    chat_id = message.chat.id
-    url_cloning_repository = 'https://pytba.readthedocs.io/en/latest/install.html#by-cloning-repository\n' \
-                             '\n' \
-                             'MAIN MENU: /start\n' \
-                             'RETURN: /content'
-    with open('by_cloning_repository.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_cloning_repository)
-
-
-
-@bot.message_handler(commands=['directly_using_pip'])
-def receiving_directly_using_pip(message):
-    chat_id = message.chat.id
-    url_directly_using_pip = 'https://pytba.readthedocs.io/en/latest/install.html#directly-using-pip\n' \
-                             '\n' \
-                             'MAIN MENU: /start\n' \
-                             'RETURN: /content'
-    with open('directly_using_pip.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_directly_using_pip)
-
-
-
-@bot.message_handler(commands=['quick_start'])
-def receiving_quick_start(message):
-    chat_id = message.chat.id
-    bot.send_message(chat_id, 'Enter options in menu\n' \
-                              '\n' \
-                              'Synchronous TeleBot: /synchronous_telebot \n' \
-                              '\n'
-                              'Asynchronous TeleBot: /asynchronous_telebot \n' \
-                              '\n' \
-                              'RETURN: /start'
-                            
+    elif call.data == 'musicas':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 3
+        markup.add(InlineKeyboardButton('🎤 Rap', callback_data='rap'),
+                    InlineKeyboardButton('🪘 Pagode', callback_data='pagode'),
+                    InlineKeyboardButton('🔊 Funk', callback_data='funk'),
+                    InlineKeyboardButton('🎸 Rock', callback_data='rock'),
+                    InlineKeyboardButton('🎹 Jazz', callback_data='jazz'),
+                   InlineKeyboardButton('🎷 Blues', callback_data='blues'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
                     )
 
-
-@bot.message_handler(commands=['synchronous_telebot'])
-def receiving_synchronous_telebot(message):
-    chat_id = message.chat.id
-    url_synchronous_telebot = 'https://pytba.readthedocs.io/en/latest/quick_start.html#synchronous-telebot\n' \
-                              '\n' \
-                              'MAIN MENU: /start\n' \
-                              'RETURN: /quick_start'
-                              
-    with open('synchronous_telebot.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_synchronous_telebot)
-        
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='canais'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal Músicas:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('musicas.csv', conversa)
 
 
-@bot.message_handler(commands=['asynchronous_telebot'])
-def receiving_asynchronous_telebot(message):
-    chat_id = message.chat.id
-    url_asynchronous_telebot = 'https://pytba.readthedocs.io/en/latest/quick_start.html#asynchronous-telebot\n' \
-                               '\n' \
-                               'MAIN MENU: /start\n' \
-                               'RETURN: /quick_start'
-                               
-    with open('asynchronous_telebot.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_asynchronous_telebot)
-        
 
-@bot.message_handler(commands=['types_of_api'])
-def receiving_types_of_api(message):
-    chat_id = message.chat.id
-    url_types_of_api = 'Needs an in-depth reading\n\n' \
-                       'https://pytba.readthedocs.io/en/latest/types.html\n' \
-                       '\n' \
-                       'MAIN MENU: /start\n' \
+    elif call.data == 'rap':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("🎤 Racionais Mc's", url='https://t.me/musicaracionaismcs'),
+                   InlineKeyboardButton('🎤 Rap Nacional', url='https://t.me/musicasrapnacional'),
+                    InlineKeyboardButton('🎤 Gospel Rap', url='https://t.me/Gospelrapmusic'),
+                    InlineKeyboardButton('🎤 G-Funk', url='https://t.me/gfunk_music'),
+                #     InlineKeyboardButton('🎹 Jazz', callback_data='jazz'),
+                #    InlineKeyboardButton('🎷 Blues', callback_data='blues'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
 
-    with open('types_of_api.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_types_of_api)
-
-
-@bot.message_handler(commands=['telebot_version'])
-def receiving_telebot_version(message):
-    chat_id = message.chat.id
-    url_telebot_version = 'Needs an in-depth reading\n\n' \
-    'https://pytba.readthedocs.io/en/latest/sync_version/index.html\n' \
-                '\n' \
-                'MAIN MENU: /start\n' \
-
-    with open('TeleBot_Version.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_telebot_version)
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='musicas'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal de Rap:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('rap.csv', conversa)
 
 
-@bot.message_handler(commands=['asynctelebot'])
-def receiving_asynctelebot(message):
-    chat_id = message.chat.id
-    url_asynctelebot = 'https://pytba.readthedocs.io/en/latest/async_version/index.html\n' \
-                  '\n' \
-                  'MAIN MENU: /start\n' \
+    elif call.data == 'pagode':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("🪘  Pagode do Bom", url='https://t.me/Pagodes1600Misturados'),
+                #    InlineKeyboardButton('🎤 Rap Nacional', url='https://t.me/musicasrapnacional'),
+                #     InlineKeyboardButton('🎤 Gospel Rap', url='https://t.me/Gospelrapmusic'),
+                #     InlineKeyboardButton('🎤 G-Funk', url='https://t.me/gfunk_music'),
+                #     InlineKeyboardButton('🎹 Jazz', callback_data='jazz'),
+                #    InlineKeyboardButton('🎷 Blues', callback_data='blues'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
 
-    with open('AsyncTeleBot.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_asynctelebot)
-
-
-@bot.message_handler(commands=['callback_data_factory'])
-def receiving_callback_data_factory(message):
-    chat_id = message.chat.id
-    url_callback_data_factory = """
-    
-
-https://pytba.readthedocs.io/en/latest/calldata.html
-
-MAIN MENU: /start
-"""
-    with open('callback_data_factory.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_callback_data_factory)
-
-
-@bot.message_handler(commands=['utils'])
-def receiving_utils(message):
-    chat_id = message.chat.id
-    url_utils = """
-https://pytba.readthedocs.io/en/latest/util.html
-
-MAIN MENU: /start
-"""
-    with open('utils.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_utils)
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='musicas'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal Músicas Rap:', reply_markup=markup)
+       # bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('pagode.csv', conversa)
 
 
-@bot.message_handler(commands=['formatting_options'])
-def receiving_formatting_options(message):
-    chat_id = message.chat.id
-    url_formatting_options = """
-https://pytba.readthedocs.io/en/latest/util.html
+    elif call.data == 'funk':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("🔊 Fluxo do Funk", url='https://t.me/Aaaaabcrd'),
+                #    InlineKeyboardButton('🎤 Rap Nacional', url='https://t.me/musicasrapnacional'),
+                #     InlineKeyboardButton('🎤 Gospel Rap', url='https://t.me/Gospelrapmusic'),
+                #     InlineKeyboardButton('🎤 G-Funk', url='https://t.me/gfunk_music'),
+                #     InlineKeyboardButton('🎹 Jazz', callback_data='jazz'),
+                #    InlineKeyboardButton('🎷 Blues', callback_data='blues'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
 
-MAIN MENU: /start
-"""
-    with open('formatting_options.png', 'rb') as image_file:
-        bot.send_photo(chat_id, image_file, caption=url_formatting_options)
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='musicas'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal Músicas Rap:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('funk.csv', conversa)
 
 
-    
+    elif call.data == 'rock':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("🎸 Rock Som das Antigas", url='https://t.me/somdasantigas'),
+                #    InlineKeyboardButton('🎤 Rap Nacional', url='https://t.me/musicasrapnacional'),
+                #     InlineKeyboardButton('🎤 Gospel Rap', url='https://t.me/Gospelrapmusic'),
+                #     InlineKeyboardButton('🎤 G-Funk', url='https://t.me/gfunk_music'),
+                #     InlineKeyboardButton('🎹 Jazz', callback_data='jazz'),
+                #    InlineKeyboardButton('🎷 Blues', callback_data='blues'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
 
-bot.infinity_polling(skip_pending=True)
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='musicas'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal Músicas Rap:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('rock.csv', conversa)
 
+
+
+
+    elif call.data == 'blues':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("🎷 Blues Music Relaxing", url='https://t.me/songblues'),
+                #    InlineKeyboardButton('🎤 Rap Nacional', url='https://t.me/musicasrapnacional'),
+                #     InlineKeyboardButton('🎤 Gospel Rap', url='https://t.me/Gospelrapmusic'),
+                #     InlineKeyboardButton('🎤 G-Funk', url='https://t.me/gfunk_music'),
+                #     InlineKeyboardButton('🎹 Jazz', callback_data='jazz'),
+                #    InlineKeyboardButton('🎷 Blues', callback_data='blues'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
+
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='musicas'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal Músicas Rap:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('blues.csv', conversa)
+
+
+
+    elif call.data == 'jazz':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("🎹 Jazz Music Relaxing", url='https://t.me/songjazz'),
+                #    InlineKeyboardButton('🎤 Rap Nacional', url='https://t.me/musicasrapnacional'),
+                #     InlineKeyboardButton('🎤 Gospel Rap', url='https://t.me/Gospelrapmusic'),
+                #     InlineKeyboardButton('🎤 G-Funk', url='https://t.me/gfunk_music'),
+                #     InlineKeyboardButton('🎹 Jazz', callback_data='jazz'),
+                #    InlineKeyboardButton('🎷 Blues', callback_data='blues'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
+
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='musicas'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal Músicas Rap:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('jazz.csv', conversa)
+
+
+
+    elif call.data == 'filmes':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 3
+        markup.add(InlineKeyboardButton('📺 Filmes Arte', url='https://t.me/FilmsArte'),
+                    InlineKeyboardButton('📺 Testosterona', url='https://t.me/Testosteronaa'),
+                    InlineKeyboardButton('📺 TopFlix', url='https://t.me/TopFlixx_Bot'),
+                    InlineKeyboardButton('📺 Filmes Policiais', url='https://t.me/cineminhapolicial'),
+                    InlineKeyboardButton('📺 Filmes e Séries', url='https://t.me/filmes'),
+                   InlineKeyboardButton('📺 Filmes | Series | Horoscopo', url='https://t.me/filmes_atores'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
+        markup.add(InlineKeyboardButton('🔞 Adulto', callback_data='adulto'))
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='canais'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal de Filme:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('filmes.csv', conversa)
+
+
+
+    elif call.data == 'noticias':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("🗞 Tupi Report", url='https://t.me/tupireport'),
+                   InlineKeyboardButton('🗞 InfoMoney', url='https://t.me/infomoney_noticias'),
+                    # InlineKeyboardButton('🗞 Wheyfus', url='https://t.me/wheyfus'),
+                    # InlineKeyboardButton('🗞Macetava?', url='https://t.me/macetavakkk'),
+                #     InlineKeyboardButton('🗞 Jazz', callback_data='jazz'),
+                #    InlineKeyboardButton('🗞 Blues', callback_data='blues'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
+
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='canais'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal Notícias:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('noticias.csv', conversa)
+
+
+    elif call.data == 'mundo':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("🌎 Live Leak", url='https://t.me/leaklive'),
+                #    InlineKeyboardButton('🌎 InfoMoney', url='https://t.me/infomoney_noticias'),
+                    # InlineKeyboardButton('🌎 Wheyfus', url='https://t.me/wheyfus'),
+                    # InlineKeyboardButton('🌎Macetava?', url='https://t.me/macetavakkk'),
+                #     InlineKeyboardButton('🌎 Jazz', callback_data='jazz'),
+                #    InlineKeyboardButton('🌎 Blues', callback_data='blues'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
+
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='canais'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal Notícias:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('mundo.csv', conversa)
+
+
+    elif call.data == 'redpill':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("🗿 Projeto Conselho", url='https://t.me/projetoconselho'),
+                #    InlineKeyboardButton('🗿 InfoMoney', url='https://t.me/infomoney_noticias'),
+                    # InlineKeyboardButton('🗿 Wheyfus', url='https://t.me/wheyfus'),
+                    # InlineKeyboardButton('🗿Macetava?', url='https://t.me/macetavakkk'),
+                #     InlineKeyboardButton('🗿 Jazz', callback_data='jazz'),
+                #    InlineKeyboardButton('🗿Blues', callback_data='blues'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
+
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='canais'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal RedPill:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('redpill.csv', conversa)
+
+
+
+    elif call.data == 'tecnologia':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("💻 InNovTech ", url='https://t.me/AYZAKIEL_4'),
+                    # InlineKeyboardButton('💻 DevWorld - Cursos', url='https://t.me/DevWorldCursosBot'),
+                    # InlineKeyboardButton('💻 Wheyfus', url='https://t.me/wheyfus'),
+                    # InlineKeyboardButton('💻Macetava?', url='https://t.me/macetavakkk'),
+                #     InlineKeyboardButton('💻 Jazz', callback_data='jazz'),
+                #    InlineKeyboardButton('💻Blues', callback_data='blues'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
+
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='canais'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal Tecnologia:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('tecnologia.csv', conversa)
+
+
+    elif call.data == 'cursos':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("📚 Culto de Toth ", url='https://t.me/+GMz2F8SVyNsxMDcx'),
+                    InlineKeyboardButton('💻 DevWorld - Cursos', url='https://t.me/DevWorldCursosBot'),
+                #    InlineKeyboardButton('📚 InfoMoney', url='https://t.me/infomoney_noticias'),
+                    # InlineKeyboardButton('📚 Wheyfus', url='https://t.me/wheyfus'),
+                    # InlineKeyboardButton('📚Macetava?', url='https://t.me/macetavakkk'),
+                #     InlineKeyboardButton('📚 Jazz', callback_data='jazz'),
+                #    InlineKeyboardButton('📚Blues', callback_data='blues'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
+
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='canais'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal Cursos:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('cursos.csv', conversa)
+
+
+
+    elif call.data == 'adulto':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("🔞 Amadoras BR", url='https://t.me/amadorasbrcaiunaneteafins'),
+                   InlineKeyboardButton('🔞 Machismo Realista', url='https://t.me/MachismoRealistaAbsoluto'),
+                    InlineKeyboardButton('🔞 Wheyfus', url='https://t.me/wheyfus'),
+                    InlineKeyboardButton('🔞Macetava?', url='https://t.me/macetavakkk'),
+                    InlineKeyboardButton('🔞 Live18Funk', url='https://t.me/lives18funk'),
+                   InlineKeyboardButton('🔞 Revista +18', url='https://t.me/+xZof5dnNZpY5ZDFh'),
+                   InlineKeyboardButton('🔞 OnlyFans Content', url='https://t.me/+AvrCcQEL4OIyOTlh'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                    )
+
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='filmes'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal Adulto:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('adulto.csv', conversa)
+
+
+
+    elif call.data == 'idiomas':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton('🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglês 🏴󠁧󠁢󠁥󠁮󠁧󠁿', url='https://t.me/inglespelotelegram'),
+                   InlineKeyboardButton('🇪🇸 Espanhol 🇪🇸', url='https://t.me/espanholcombeta'),
+                   InlineKeyboardButton('🇫🇷 Francês 🇫🇷', url='https://t.me/francesmairovergara'),
+                   InlineKeyboardButton('🇩🇪 Alemão 🇩🇪', url='https://t.me/Cursoalemao'),
+                #    InlineKeyboardButton('◀️ Retornar', callback_data='canais'),
+                #    InlineKeyboardButton('🤑 Doação', callback_data='valores'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram'),
+                #    InlineKeyboardButton('Inglês Pelo Telegram', url='https://t.me/inglespelotelegram')
+                   )
+
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='canais'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, 'Selecione Canal Idioma:', reply_markup=markup)
+        #bot.send_message(chat_id, 'Mande DM para @ordnavile para inserir seu grupo ou canal no catálogo, é gratuito e sempre será!😎')
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+        salvar('idiomas.csv', conversa)
+
+
+
+    elif call.data == 'help':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        markup = InlineKeyboardMarkup()
+        markup.add(InlineKeyboardButton('🤑 Doação', callback_data='valores'))
+        markup.add(InlineKeyboardButton('◀️ Retornar', callback_data='start'))
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id, """ Quer inserir seu canal ou grupo no catálogo?
+Envei uma DM para @ordnavile com o link do seu grupo ou canal, é gratuito e sempre será!😉
+        """, reply_markup=markup)
+        # bot.delete_message(chat_id, message_id)
+        bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+
+
+
+    elif call.data == 'start':
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        bot.answer_callback_query(callback_query_id=call.id)
+        send_start(call.message) # chama a função send_start novamente para mostrar o menu inicial
+
+
+    else:
+        bot.send_chat_action(chat_id=call.from_user.id, action='typing')
+        bot.answer_callback_query(callback_query_id=call.id, text='Opção inválida. Tente novamente.')
+
+
+if __name__ == '__main__':
+    print('Bot running...')
+    bot.infinity_polling(skip_pending=True)
