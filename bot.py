@@ -8,7 +8,7 @@ from enviaremail import CriandoEmail
 
 BOT_TOKEN = '<INSIRA O TOKEN DO SEU BOT AQUI>'
 
-bot = telebot.TeleBot(BOT_TOKEN, parse_mode='HTML')
+bot = TeleBot(BOT_TOKEN, parse_mode='HTML')
 
 criar_email = CriandoEmail()
 
