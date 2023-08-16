@@ -1,18 +1,19 @@
 # -- coding: utf-8 --
 
-import telebot, csv
+from telebot import TeleBot
+import csv
 from datetime import datetime
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
 from enviaremail import CriandoEmail
 
-BOT_TOKEN = '<INSIRA_BOT_TOKEN>'
+BOT_TOKEN = '<INSIRA O TOKEN DO SEU BOT AQUI>'
 
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode='HTML')
 
 criar_email = CriandoEmail()
 
 #SALVAR dados da conversa com o chatbot em arquivos csv
-def salvar (arquivo, conversa: list):
+def salvar(arquivo, conversa: list):
     with open(arquivo,'a') as chat:
         e = csv.writer(chat)
         e.writerow(conversa)
@@ -37,7 +38,7 @@ def send_start(message):
         ]
     salvar('clientes.xlsx', conversa)
     criar_email.enviando_email()
-    
+
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
@@ -54,16 +55,11 @@ Envei uma DM para @ordnavile com o link do seu grupo ou canal, é gratuito e sem
 @bot.message_handler(func=lambda message: True, content_types=['audio', 'photo', 'voice', 'video', 'document',
                                                                'text', 'location', 'contact', 'sticker', 'animation'])
 def default_command(message):
-    markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton('▶️ Start', callback_data='start'))
-    markup.add(InlineKeyboardButton('🆘 Help', callback_data='help'))
-
-
     if message.content_type == message.content_type:
         bot.send_chat_action(chat_id=message.from_user.id, action='typing')
         bot.send_message(message.chat.id, """Não é um comando válido.😕
-Digite /start ou /help para interagir com o bot.🤖""", reply_markup=markup)
-        bot.delete_message(chat_id=message.from_user.id, message_id=message.message.message_id)
+Digite /start para interagir com o bot.🤖""")
+        bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id)
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'doacao')
@@ -71,14 +67,8 @@ def callback_valores(call):
     chat_id = call.message.chat.id
     message_id = call.message.message_id
         
-    chave_pix = """
+    chave_pix = '1c60cdac-4a1e-4146-a141-c1329f487615 \n\n Faça uma doação!😉'
 
-1c60cdac-4a1e-4146-a141-c1329f487615
-
-Esse projeto é 100% gratuito.
-Uma coquinha e um salgado será sempre bem-vindo!😉
-
-"""
     image_file = open('pix.jpeg', 'rb')
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton('Retornar', callback_data='start'))
