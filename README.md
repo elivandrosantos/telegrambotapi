@@ -4,7 +4,7 @@ Olá pessoal, tudo bem?
 
 Tudo começou no aprendizado python e tenho estudado diversas documentações e framework, confesso que é bem divertido.
 
-Nesse caso fui dar uma lida na documentação do pyTelegramBotAPI e acabei criando um bot simples, para consulta da própria documentação.
+Nesse caso fui dar uma lida na documentação do pyTelegramBotAPI e acabei criando um bot com botões inline.
 
 Quem quiser entrar em contato vou deixar meu telegram aqui para um bate papo, esse projeto faz parte da minha trilha de aprendizado, onde há um ano estou estudando linguagem python no auto-didatismo, pesquisa, consultas e participando das comunidades.
 
