@@ -36,7 +36,7 @@ def send_start(message):
             message.content_type, # tipo do arquivo enviado
             message.text
         ]
-    salvar('clientes.csv', conversa)
+    salvar('clientes.csv', conversa) #This point
     criar_email.enviando_email()
 
 
