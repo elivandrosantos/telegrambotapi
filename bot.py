@@ -14,9 +14,9 @@ criar_email = CriandoEmail()
 
 #SALVAR dados da conversa com o chatbot em arquivos csv
 def salvar(arquivo, conversa: list):
-    with open(arquivo,'a') as chat:
-        e = csv.writer(chat)
-        e.writerow(conversa)
+    chat = open(arquivo,'a', encoding="utf-8")
+    e = csv.writer(chat)
+    e.writerow(conversa)
 
 
 @bot.message_handler(commands=['start'])
@@ -36,7 +36,7 @@ def send_start(message):
             message.content_type, # tipo do arquivo enviado
             message.text
         ]
-    salvar('clientes.xlsx', conversa)
+    salvar('clientes.csv', conversa)
     criar_email.enviando_email()
 
 
