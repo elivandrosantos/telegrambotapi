@@ -20,7 +20,7 @@ class CriandoEmail():
         subject = 'Atualização Clientes Bot Telegram'
 
         # Caminho para o arquivo XLSX gerado
-        file_path = 'clientes.xlsx'
+        file_path = 'clientes.csv' 
 
         # Crie a mensagem do email
         msg = MIMEMultipart()
@@ -34,7 +34,7 @@ class CriandoEmail():
 
         # Anexe o arquivo XLSX
         with open(file_path, 'rb') as file:
-            attachment = MIMEApplication(file.read(), _subtype="xlsx")
+            attachment = MIMEApplication(file.read(), _subtype="csv")
             attachment.add_header('Content-Disposition', f'attachment; filename={file_path}')
             msg.attach(attachment)
 
